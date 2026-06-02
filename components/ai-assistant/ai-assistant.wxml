@@ -1,0 +1,179 @@
+<!-- 简工坊Pro · AI 智能助手浮层 · 2026 毛玻璃设计 -->
+<view id="page-ai-assistant" class="ai-overlay {{visible ? 'visible' : ''}}">
+
+  <!-- 毛玻璃主面板 -->
+  <view class="ai-glass-panel">
+
+    <!-- ====== 顶部导航栏 ====== -->
+    <view class="ai-header" style="padding-top: {{statusBarHeight}}px;">
+      <view class="ai-header-left" bindtap="_onToggleHistory">
+        <text class="ai-header-icon">📋</text>
+        <text class="ai-header-badge" wx:if="{{conversations.length > 0}}">{{conversations.length}}</text>
+      </view>
+      <text class="ai-header-title">AI 助手</text>
+      <view class="ai-header-right">
+        <text class="ai-header-action" bindtap="_onNewChat" wx:if="{{messages.length > 0}}">＋</text>
+        <text class="ai-header-close" bindtap="_onRequestClose">✕</text>
+      </view>
+    </view>
+
+    <!-- ====== 模式切换栏 ====== -->
+    <view class="ai-mode-bar">
+      <view
+        class="ai-mode-tab {{mode === item.key ? 'active' : ''}}"
+        wx:for="{{modeOptions}}"
+        wx:key="key"
+        data-mode="{{item.key}}"
+        bindtap="_onModeChange"
+      >
+        <text class="ai-mode-icon">{{item.icon}}</text>
+        <text class="ai-mode-label">{{item.label}}</text>
+        <view class="ai-mode-dot" wx:if="{{mode === item.key}}"></view>
+      </view>
+    </view>
+
+    <!-- ====== 对话区域 ====== -->
+    <scroll-view
+      class="ai-chat-area"
+      scroll-y
+      scroll-into-view="{{scrollToView}}"
+      scroll-with-animation
+      enhanced
+      show-scrollbar="{{false}}"
+    >
+
+      <!-- 空状态欢迎页 -->
+      <view class="ai-welcome" wx:if="{{messages.length === 0}}">
+        <view class="ai-welcome-icon">
+          <text class="ai-welcome-emoji">✨</text>
+        </view>
+        <text class="ai-welcome-title">简工坊Pro AI</text>
+        <text class="ai-welcome-desc">基于混元大模型，支持流式对话与文字润色</text>
+
+        <!-- 快捷提示 -->
+        <view class="ai-quick-prompts">
+          <text class="ai-quick-label">试试这些：</text>
+          <view
+            class="ai-quick-item"
+            wx:for="{{quickPrompts}}"
+            wx:key="*this"
+            data-prompt="{{item}}"
+            bindtap="_onQuickPrompt"
+          >
+            <text class="ai-quick-text">{{item}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 消息列表 -->
+      <block wx:for="{{messages}}" wx:key="timestamp">
+        <view class="ai-message-wrapper {{item.role === 'user' ? 'user-wrapper' : 'assistant-wrapper'}}">
+          <!-- 助手头像 -->
+          <view class="ai-avatar" wx:if="{{item.role === 'assistant'}}">
+            <text class="ai-avatar-emoji">🤖</text>
+          </view>
+
+          <!-- 消息气泡 -->
+          <view class="ai-message-bubble {{item.role}}">
+            <!-- 消息文本 -->
+            <text class="ai-message-text">{{item.content}}</text>
+
+            <!-- 打字机光标（仅流式输出中显示） -->
+            <text class="ai-cursor" wx:if="{{item.streaming}}">▎</text>
+
+            <!-- 错误标记 -->
+            <view class="ai-error-tag" wx:if="{{item.error}}">
+              <text class="ai-error-text">发送失败</text>
+              <text
+                class="ai-retry-btn"
+                data-index="{{index}}"
+                bindtap="_onRetry"
+              >重试</text>
+            </view>
+          </view>
+
+          <!-- 用户头像 -->
+          <view class="ai-avatar" wx:if="{{item.role === 'user'}}">
+            <text class="ai-avatar-emoji">👤</text>
+          </view>
+        </view>
+      </block>
+
+      <!-- 流式加载指示器 -->
+      <view class="ai-loading-indicator" wx:if="{{isStreaming}}">
+        <view class="ai-typing-dots">
+          <view class="ai-typing-dot"></view>
+          <view class="ai-typing-dot"></view>
+          <view class="ai-typing-dot"></view>
+        </view>
+      </view>
+
+      <!-- 滚动锚点 -->
+      <view id="msg-bottom" style="height:2rpx;"></view>
+    </scroll-view>
+
+    <!-- ====== 历史记录面板 ====== -->
+    <view class="ai-history-panel {{showHistory ? 'visible' : ''}}">
+      <view class="ai-history-header">
+        <text class="ai-history-title">历史对话</text>
+        <text class="ai-history-close" bindtap="_onToggleHistory">✕</text>
+      </view>
+      <scroll-view class="ai-history-list" scroll-y enhanced show-scrollbar="{{false}}">
+        <view
+          class="ai-history-item"
+          wx:for="{{conversations}}"
+          wx:key="_id"
+          data-id="{{item._id}}"
+          bindtap="_onHistoryItemTap"
+          bindlongpress="_onHistoryLongPress"
+        >
+          <view class="ai-history-item-icon">
+            <text>💬</text>
+          </view>
+          <view class="ai-history-item-info">
+            <text class="ai-history-item-title">{{item.title || '新对话'}}</text>
+            <text class="ai-history-item-meta">{{item.messageCount || 0}} 条消息 · {{item.modeLabel}}</text>
+          </view>
+          <text class="ai-history-item-arrow">›</text>
+        </view>
+        <!-- 空历史 -->
+        <view class="ai-history-empty" wx:if="{{conversations.length === 0}}">
+          <text class="ai-history-empty-icon">📭</text>
+          <text class="ai-history-empty-text">暂无历史对话</text>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- ====== 底部输入栏 ====== -->
+    <view class="ai-input-bar {{inputFocused ? 'focused' : ''}}">
+      <view class="ai-input-box">
+        <textarea
+          class="ai-input"
+          placeholder="输入消息..."
+          placeholder-style="color: #AEAEB2;"
+          value="{{inputValue}}"
+          bindinput="_onInputChange"
+          bindfocus="_onInputFocus"
+          bindblur="_onInputBlur"
+          bindconfirm="_onSend"
+          auto-height
+          maxlength="2000"
+          adjust-position="{{false}}"
+          show-confirm-bar="{{false}}"
+          cursor-spacing="12"
+          confirm-type="send"
+          disabled="{{isStreaming}}"
+        ></textarea>
+      </view>
+
+      <!-- 发送 / 停止按钮 -->
+      <view
+        class="ai-send-btn {{isStreaming ? 'stop-btn' : ''}} {{inputValue.trim() ? 'has-text' : ''}}"
+        bindtap="{{isStreaming ? '_onStopStream' : '_onSend'}}"
+      >
+        <text class="ai-send-icon">{{isStreaming ? '■' : '↑'}}</text>
+      </view>
+    </view>
+
+  </view>
+</view>

@@ -1,0 +1,699 @@
+/**
+ * 简工坊Pro · AI 智能助手样式
+ * 2026 毛玻璃雾面设计 · 主色 #1A73E8
+ * 零污染：全部使用 .ai- 前缀命名空间
+ */
+
+/* ================================================================
+   1. 浮层容器 — 从底部滑入的毛玻璃全屏面板
+   ================================================================ */
+.ai-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2000;
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform;
+}
+
+.ai-overlay.visible {
+  transform: translateY(0);
+}
+
+/* 毛玻璃主面板 */
+.ai-glass-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;                     /* 关键：约束 flex 子元素不溢出 */
+  /* 毛玻璃雾面效果 */
+  background: rgba(244, 246, 249, 0.82);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* Android 不支持 backdrop-filter 时的降级 */
+@supports not (backdrop-filter: blur(1px)) {
+  .ai-glass-panel {
+    background: rgba(244, 246, 249, 0.96);
+  }
+  .ai-message-bubble.assistant {
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .ai-input-bar {
+    background: rgba(244, 246, 249, 0.96) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .ai-mode-bar {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+
+/* ================================================================
+   2. 顶部导航栏
+   ================================================================ */
+.ai-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px 16px 24px;
+  padding-top: calc(12px + env(safe-area-inset-top));
+  box-sizing: border-box;
+  flex-shrink: 0;                       /* 固定高度不被压缩 */
+}
+
+.ai-header-left {
+  display: flex;
+  align-items: center;
+  position: relative;
+  min-width: 80rpx;
+  min-height: 80rpx;
+  padding: 14px 16px;
+  border-radius: 20px;
+  justify-content: center;
+}
+
+.ai-header-left:active {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.ai-header-icon {
+  font-size: 36rpx;
+}
+
+.ai-header-badge {
+  position: absolute;
+  top: 4px;
+  right: 2px;
+  min-width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  text-align: center;
+  font-size: 20rpx;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #1A73E8;
+  border-radius: 16rpx;
+  padding: 0 8rpx;
+}
+
+.ai-header-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #1D1D1F;
+  letter-spacing: 0.5px;
+}
+
+.ai-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-header-action {
+  font-size: 40rpx;
+  color: #1A73E8;
+  font-weight: 300;
+  min-width: 80rpx;
+  min-height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 16px;
+  border-radius: 20px;
+}
+
+.ai-header-action:active {
+  background: rgba(26, 115, 232, 0.08);
+}
+
+.ai-header-close {
+  font-size: 32rpx;
+  color: #86868B;
+  min-width: 80rpx;
+  min-height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 16px;
+  border-radius: 20px;
+  font-weight: 400;
+}
+
+.ai-header-close:active {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+
+/* ================================================================
+   3. 模式切换栏 — 三个艺术化约束选项
+   ================================================================ */
+.ai-mode-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 24px 16px 24px;
+  flex-shrink: 0;                       /* 固定高度不被压缩 */
+  /* 微毛玻璃 */
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1rpx solid rgba(60, 60, 67, 0.06);
+}
+
+.ai-mode-tab {
+  flex: 1;
+  max-width: 220rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14rpx 20rpx;
+  border-radius: 24rpx;
+  background: transparent;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.ai-mode-tab:active {
+  transform: scale(0.95);
+}
+
+.ai-mode-tab.active {
+  background: rgba(26, 115, 232, 0.08);
+}
+
+.ai-mode-icon {
+  font-size: 28rpx;
+}
+
+.ai-mode-label {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #86868B;
+  transition: color 0.25s;
+}
+
+.ai-mode-tab.active .ai-mode-label {
+  color: #1A73E8;
+  font-weight: 600;
+}
+
+.ai-mode-dot {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6rpx;
+  height: 6rpx;
+  border-radius: 3rpx;
+  background: #1A73E8;
+}
+
+
+/* ================================================================
+   4. 对话区域
+   ================================================================ */
+.ai-chat-area {
+  flex: 1;
+  height: 0;                            /* 微信 flex 滚动标准：必须 flex:1 + height:0 */
+  padding: 16px 20px;
+  padding-bottom: 24px;
+  box-sizing: border-box;
+}
+
+/* ---------- 4a. 空状态欢迎页 ---------- */
+.ai-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 80rpx;
+}
+
+.ai-welcome-icon {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 70rpx;
+  background: linear-gradient(135deg, rgba(26, 115, 232, 0.10) 0%, rgba(26, 115, 232, 0.04) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32rpx;
+}
+
+.ai-welcome-emoji {
+  font-size: 64rpx;
+  filter: drop-shadow(0 4rpx 8rpx rgba(26, 115, 232, 0.15));
+}
+
+.ai-welcome-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1D1D1F;
+  margin-bottom: 12rpx;
+  letter-spacing: 1px;
+}
+
+.ai-welcome-desc {
+  font-size: 26rpx;
+  color: #86868B;
+  margin-bottom: 48rpx;
+}
+
+/* 快捷提示词 */
+.ai-quick-prompts {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.ai-quick-label {
+  font-size: 24rpx;
+  color: #AEAEB2;
+  margin-bottom: 4rpx;
+}
+
+.ai-quick-item {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 24rpx;
+  padding: 24rpx 28rpx;
+  border: 1rpx solid rgba(60, 60, 67, 0.06);
+  transition: all 0.2s;
+}
+
+.ai-quick-item:active {
+  background: rgba(26, 115, 232, 0.06);
+  border-color: rgba(26, 115, 232, 0.15);
+  transform: scale(0.98);
+}
+
+.ai-quick-text {
+  font-size: 28rpx;
+  color: #3C3C43;
+  line-height: 1.6;
+}
+
+/* ---------- 4b. 消息项 ---------- */
+.ai-message-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 0 4px;
+  animation: ai-message-in 0.28s cubic-bezier(0.25, 0.8, 0.25, 1) both;
+}
+
+@keyframes ai-message-in {
+  0% {
+    opacity: 0;
+    transform: translateY(12rpx);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 用户消息右对齐 */
+.user-wrapper {
+  flex-direction: row-reverse;
+}
+
+/* 助手消息左对齐 */
+.assistant-wrapper {
+  flex-direction: row;
+}
+
+/* 头像 */
+.ai-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 32rpx;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1rpx solid rgba(60, 60, 67, 0.06);
+}
+
+.ai-avatar-emoji {
+  font-size: 28rpx;
+}
+
+/* ---------- 4c. 气泡样式 ---------- */
+.ai-message-bubble {
+  max-width: 78%;
+  min-width: 0;                         /* flex 子元素文本换行关键 */
+  padding: 20rpx 26rpx;
+  position: relative;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* 助手气泡 — 毛玻璃卡片 */
+.ai-message-bubble.assistant {
+  background: rgba(255, 255, 255, 0.58);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 24rpx 24rpx 24rpx 8rpx;
+  color: #1D1D1F;
+  border: 1rpx solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.03);
+}
+
+/* 用户气泡 — 蓝色渐变 */
+.ai-message-bubble.user {
+  background: linear-gradient(135deg, #1A73E8 0%, #1557B0 100%);
+  color: #FFFFFF;
+  border-radius: 24rpx 24rpx 8rpx 24rpx;
+  box-shadow: 0 4rpx 14rpx rgba(26, 115, 232, 0.25);
+}
+
+.ai-message-text {
+  font-size: 28rpx;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---------- 4d. 打字机光标 ---------- */
+.ai-cursor {
+  display: inline;
+  font-size: 28rpx;
+  color: #1A73E8;
+  animation: ai-blink 1s step-end infinite;
+  vertical-align: baseline;
+  margin-left: 1rpx;
+}
+
+@keyframes ai-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ---------- 4e. 错误标记 ---------- */
+.ai-error-tag {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10rpx;
+  padding-top: 10rpx;
+  border-top: 1rpx solid rgba(60, 60, 67, 0.08);
+}
+
+.ai-error-text {
+  font-size: 22rpx;
+  color: #FF3B30;
+}
+
+.ai-retry-btn {
+  font-size: 22rpx;
+  color: #1A73E8;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 8rpx;
+  background: rgba(26, 115, 232, 0.06);
+}
+
+.ai-retry-btn:active {
+  background: rgba(26, 115, 232, 0.12);
+}
+
+/* ---------- 4f. 加载指示器 ---------- */
+.ai-loading-indicator {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  margin-bottom: 24px;
+}
+
+.ai-typing-dots {
+  display: flex;
+  gap: 8rpx;
+  padding: 16rpx 24rpx;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(60, 60, 67, 0.05);
+}
+
+.ai-typing-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 6rpx;
+  background: #AEAEB2;
+  animation: ai-dot-pulse 1.4s ease-in-out infinite;
+}
+
+.ai-typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.ai-typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes ai-dot-pulse {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+/* ================================================================
+   5. 历史记录面板 — 从左侧滑入
+   ================================================================ */
+.ai-history-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 85%;
+  max-width: 640rpx;
+  background: rgba(248, 249, 250, 0.95);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  z-index: 10;
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4rpx 0 32rpx rgba(0, 0, 0, 0.08);
+  border-right: 1rpx solid rgba(60, 60, 67, 0.06);
+}
+
+.ai-history-panel.visible {
+  transform: translateX(0);
+}
+
+.ai-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px;
+  padding-top: calc(24px + env(safe-area-inset-top));
+  border-bottom: 1rpx solid rgba(60, 60, 67, 0.06);
+}
+
+.ai-history-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1D1D1F;
+}
+
+.ai-history-close {
+  font-size: 32rpx;
+  color: #86868B;
+  padding: 8px 12px;
+  border-radius: 16px;
+}
+
+.ai-history-close:active {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.ai-history-list {
+  flex: 1;
+  height: 0;                            /* flex 子元素可滚动 */
+  padding: 12px 16px;
+}
+
+.ai-history-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 16px;
+  border-radius: 20rpx;
+  margin-bottom: 6px;
+  transition: all 0.2s;
+}
+
+.ai-history-item:active {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.ai-history-item-icon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 36rpx;
+  background: rgba(26, 115, 232, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  flex-shrink: 0;
+}
+
+.ai-history-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ai-history-item-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #1D1D1F;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-history-item-meta {
+  font-size: 22rpx;
+  color: #AEAEB2;
+}
+
+.ai-history-item-arrow {
+  font-size: 36rpx;
+  color: #C7C7CC;
+  flex-shrink: 0;
+}
+
+.ai-history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 160rpx;
+  gap: 16rpx;
+}
+
+.ai-history-empty-icon {
+  font-size: 72rpx;
+}
+
+.ai-history-empty-text {
+  font-size: 28rpx;
+  color: #AEAEB2;
+}
+
+
+/* ================================================================
+   6. 底部输入栏
+   ================================================================ */
+.ai-input-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 12px 20px;
+  flex-shrink: 0;                       /* 防止被 scroll-view 压缩 */
+  /* 毛玻璃输入栏 */
+  background: rgba(244, 246, 249, 0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1rpx solid rgba(60, 60, 67, 0.06);
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  transition: background 0.25s;
+}
+
+.ai-input-bar.focused {
+  background: rgba(244, 246, 249, 0.92);
+}
+
+.ai-input-box {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 28rpx;
+  border: 2rpx solid rgba(60, 60, 67, 0.08);
+  padding: 12rpx 20rpx;
+  transition: all 0.25s;
+  max-height: 200rpx;
+  overflow: hidden;
+}
+
+.ai-input-box:focus-within,
+.ai-input-bar.focused .ai-input-box {
+  border-color: rgba(26, 115, 232, 0.35);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 0 0 4rpx rgba(26, 115, 232, 0.06);
+}
+
+.ai-input {
+  width: 100%;
+  font-size: 28rpx;
+  line-height: 1.55;
+  color: #1D1D1F;
+  max-height: 160rpx;
+  min-height: 40rpx;
+}
+
+/* ====== 发送按钮 ====== */
+.ai-send-btn {
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 38rpx;
+  background: #C7C7CC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.22s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.ai-send-btn.has-text {
+  background: linear-gradient(135deg, #1A73E8 0%, #1557B0 100%);
+  box-shadow: 0 4rpx 12rpx rgba(26, 115, 232, 0.3);
+}
+
+.ai-send-btn:active {
+  transform: scale(0.9);
+}
+
+/* 停止按钮（流式输出中） */
+.ai-send-btn.stop-btn {
+  background: #FF3B30;
+  box-shadow: 0 4rpx 12rpx rgba(255, 59, 48, 0.3);
+}
+
+.ai-send-icon {
+  font-size: 32rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}

@@ -1,0 +1,4 @@
+<view class="placeholder-wrapper">
+  <view class="placeholder-icon">⌛</view>
+  <view class="placeholder-text">加载中...</view>
+</view>
